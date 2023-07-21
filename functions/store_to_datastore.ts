@@ -15,16 +15,20 @@ export const StoreToDatastore = DefineFunction({
         description: "The channel that the message was posted in",
         type: Schema.slack.types.channel_id,
       },
-      text: {
-        description: "The text of the message",
-        type: Schema.slack.types.rich_text,
-      },
-      user_id: {
-        description: "The user who sent the message:",
-        type: Schema.slack.types.user_id,
-      },
+      // text: {
+      //   description: "The text of the message",
+      //   type: Schema.slack.types.rich_text,
+      // },
+      // user_id: {
+      //   description: "The user who sent the message:",
+      //   type: Schema.slack.types.user_id,
+      // },
+      // debug_event: {
+      //   description: "We're unhappy",
+      //   type: Schema.types.object,
+      // },
     },
-    required: ["message_ts", "channel_id", "text", "user_id"],
+    required: ["message_ts", "channel_id"],
   },
 });
 
@@ -32,6 +36,7 @@ export default SlackFunction(
   StoreToDatastore,
   // Note the `async`, required since we `await` any `client` call.
   async ({ inputs, client }) => {
+    // console.log(JSON.stringify(inputs.debug_event));
     // The below will create a *new* item, since we're creating a new ID:
     const uuid = crypto.randomUUID();
     // Use the client prop to call the SlackAPI
@@ -41,11 +46,19 @@ export default SlackFunction(
         // To update an existing item, pass the `id` returned from a previous put command
         message_id: uuid,
         message_ts: inputs.message_ts,
-        text: inputs.text,
-        user_id: inputs.user_id,
+        // text: inputs.text,
+        // user_id: inputs.user_id,
         channel_id: inputs.channel_id,
       },
     });
+
+    let the_message = await client.conversations.history({
+      channel: inputs.channel_id,
+      oldest: inputs.message_ts,
+      limit: 1,
+      inclusive: true,
+    })
+    console.log(JSON.stringify(the_message));
 
     if (!response.ok) {
       const error = `Failed to save a row in datastore: ${response.error}`;

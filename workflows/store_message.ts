@@ -21,16 +21,20 @@ const StoreMessageWorkflow = DefineWorkflow({
         description: "The id of the channel the message came from",
         type: Schema.slack.types.channel_id,
       },
-      text: {
-        description: "The text of the message",
-        type: Schema.slack.types.rich_text,
-      },
-      user_id: {
-        description: "The user who posted the message",
-        type: Schema.slack.types.user_id,
-      },
+      // text: {
+      //   description: "The text of the message",
+      //   type: Schema.slack.types.rich_text,
+      // },
+      // user_id: {
+      //   description: "The user who posted the message",
+      //   type: Schema.slack.types.user_id,
+      // },
+      // debug_event: {
+      //   description: "the event we're unhappy",
+      //   type: Schema.types.object,
+      // },
     },
-    required: ["message_ts", "channel_id", "text", "user_id"],
+    required: ["message_ts", "channel_id"],
   },
 });
 
@@ -44,8 +48,9 @@ StoreMessageWorkflow.addStep(
   {
     message_ts: StoreMessageWorkflow.inputs.message_ts,
     channel_id: StoreMessageWorkflow.inputs.channel_id,
-    text: StoreMessageWorkflow.inputs.text,
-    user_id: StoreMessageWorkflow.inputs.user_id,
+    // text: StoreMessageWorkflow.inputs.text,
+    // user_id: StoreMessageWorkflow.inputs.user_id,
+    // debug_event: StoreMessageWorkflow.inputs.debug_event,
   },
   // Schema.slack.functions.SendDm,
   // {
