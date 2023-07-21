@@ -49,7 +49,9 @@ const readMessage: Trigger<typeof StoreMessageWorkflow.definition> = {
     text: {
       value: TriggerContextData.Event.MessagePosted.text,
     },
-    //TODO: Include user ID as inputs (passed to Workflow)
+    user_id: {
+      value: TriggerContextData.Event.MessagePosted.user_id,
+    },
   },
 };
 

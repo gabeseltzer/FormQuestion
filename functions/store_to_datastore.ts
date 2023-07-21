@@ -7,12 +7,24 @@ export const StoreToDatastore = DefineFunction({
   source_file: "functions/store_to_datastore.ts",
   input_parameters: {
     properties: {
-      message_id: {
-        type: Schema.types.string,
-        description: "The ID of the message",
+      message_ts: {
+        description: "The timestamp of the message",
+        type: Schema.slack.types.message_ts,
+      },
+      channel_id: {
+        description: "The channel that the message was posted in",
+        type: Schema.slack.types.channel_id,
+      },
+      text: {
+        description: "The text of the message",
+        type: Schema.slack.types.rich_text,
+      },
+      user_id: {
+        description: "The user who sent the message:",
+        type: Schema.slack.types.user_id,
       },
     },
-    required: ["message_id"],
+    required: ["message_ts", "channel_id", "text", "user_id"],
   },
 });
 
@@ -24,12 +36,14 @@ export default SlackFunction(
     const uuid = crypto.randomUUID();
     // Use the client prop to call the SlackAPI
     const response = await client.apps.datastore.put({ // Here's that client property we mentioned that allows us to call the SlackAPI's datastore functions
-      datastore: "good_tunes",
+      datastore: "questions",
       item: {
         // To update an existing item, pass the `id` returned from a previous put command
-        id: uuid,
-        artist: inputs.artist,
-        song: inputs.song,
+        message_id: uuid,
+        message_ts: inputs.message_ts,
+        text: inputs.text,
+        user_id: inputs.user_id,
+        channel_id: inputs.channel_id,
       },
     });
 

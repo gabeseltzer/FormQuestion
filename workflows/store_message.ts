@@ -1,5 +1,6 @@
 import { DefineWorkflow, Schema } from "deno-slack-sdk/mod.ts";
-import { PostIssueMessage } from "../functions/post_issue_message.ts";
+import { StoreToDatastore } from "../functions/store_to_datastore.ts";
+// import { PostIssueMessage } from "../functions/post_issue_message.ts";
 
 /**
  * A workflow is a set of steps that are executed in order.
@@ -14,14 +15,22 @@ const StoreMessageWorkflow = DefineWorkflow({
     properties: {
       message_ts: {
         description: "The message to store",
-        type: Schema.types.string,
+        type: Schema.slack.types.message_ts,
       },
       channel_id: {
         description: "The id of the channel the message came from",
         type: Schema.slack.types.channel_id,
       },
+      text: {
+        description: "The text of the message",
+        type: Schema.slack.types.rich_text,
+      },
+      user_id: {
+        description: "The user who posted the message",
+        type: Schema.slack.types.user_id,
+      },
     },
-    required: ["channel_id", "message_ts"],
+    required: ["message_ts", "channel_id", "text", "user_id"],
   },
 });
 
@@ -30,13 +39,20 @@ const StoreMessageWorkflow = DefineWorkflow({
  * built-in OpenForm function as a first step.
  * https://api.slack.com/automation/functions#open-a-form
  */
-const inputForm = StoreMessageWorkflow.addStep(
-  Schema.slack.functions.SendDm,
+StoreMessageWorkflow.addStep(
+  StoreToDatastore,
   {
-    user_id: "UP5MLD6EN",
-    message:
-      "Don't give up. Never surrender. Except the cookies. Surrender the cookies.",
+    message_ts: StoreMessageWorkflow.inputs.message_ts,
+    channel_id: StoreMessageWorkflow.inputs.channel_id,
+    text: StoreMessageWorkflow.inputs.text,
+    user_id: StoreMessageWorkflow.inputs.user_id,
   },
+  // Schema.slack.functions.SendDm,
+  // {
+  //   user_id: "UP5MLD6EN",
+  //   message:
+  //     "Don't give up. Never surrender. Except the cookies. Surrender the cookies.",
+  // },
 );
 
 /**
