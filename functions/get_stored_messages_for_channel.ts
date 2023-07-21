@@ -8,7 +8,7 @@ export const GetStoredMessagesForChannel = DefineFunction({
   input_parameters: {
     properties: {
       channel_id: {
-        type: Schema.types.string,
+        type: Schema.slack.types.channel_id,
         description: "The channel that the message was posted in",
       },
     },
@@ -35,6 +35,7 @@ export default SlackFunction(
       expression_attributes: { "#channel_id": "channel_id" },
       expression_values: { ":given_channel_id": inputs.channel_id },
     });
+    console.log("GOT DA MESSEGES: " + JSON.stringify(resulting_messages));
     return { outputs: { resulting_messages } };
   },
 );

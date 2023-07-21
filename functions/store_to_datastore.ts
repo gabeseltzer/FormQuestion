@@ -52,12 +52,12 @@ export default SlackFunction(
       },
     });
 
-    let the_message = await client.conversations.history({
+    const the_message = await client.conversations.history({
       channel: inputs.channel_id,
       oldest: inputs.message_ts,
       limit: 1,
       inclusive: true,
-    })
+    });
     console.log(JSON.stringify(the_message));
 
     if (!response.ok) {
