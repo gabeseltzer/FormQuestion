@@ -1,6 +1,7 @@
 import { Manifest } from "deno-slack-sdk/mod.ts";
-import { PostIssueMessage } from "./functions/post_issue_message.ts";
-import SubmitIssueWorkflow from "./workflows/submit_issue.ts";
+import StoreMessageWorkflow from "./workflows/store_message.ts";
+import QuestionsDatastore from "./datastores/questions_datastore.ts";
+import StoreToDatastore from "./functions/store_to_datastore.ts";
 
 /**
  * The app manifest contains the app's configuration. This
@@ -11,8 +12,16 @@ export default Manifest({
   name: "my-app",
   description: "A basic sample that demonstrates issue submission to channel",
   icon: "assets/default_new_app_icon.png",
-  workflows: [SubmitIssueWorkflow],
-  functions: [PostIssueMessage],
+  datastores: [QuestionsDatastore],
+  workflows: [StoreMessageWorkflow],
+  functions: [StoreToDatastore],
   outgoingDomains: [],
-  botScopes: ["commands", "chat:write", "chat:write.public"],
+  botScopes: [
+    "commands",
+    "chat:write",
+    "chat:write.public",
+    "channels:history",
+    "datastore:read",
+    "datastore:write:",
+  ],
 });
