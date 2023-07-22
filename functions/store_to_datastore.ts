@@ -34,24 +34,7 @@ export const StoreToDatastore = DefineFunction({
 
 export default SlackFunction(
   StoreToDatastore,
-  // Note the `async`, required since we `await` any `client` call.
   async ({ inputs, client }) => {
-    // console.log(JSON.stringify(inputs.debug_event));
-    // The below will create a *new* item, since we're creating a new ID:
-    const uuid = crypto.randomUUID();
-    // Use the client prop to call the SlackAPI
-    const response = await client.apps.datastore.put({ // Here's that client property we mentioned that allows us to call the SlackAPI's datastore functions
-      datastore: "questions",
-      item: {
-        // To update an existing item, pass the `id` returned from a previous put command
-        message_id: uuid,
-        message_ts: inputs.message_ts,
-        // text: inputs.text,
-        // user_id: inputs.user_id,
-        channel_id: inputs.channel_id,
-      },
-    });
-
     const the_message = await client.conversations.history({
       channel: inputs.channel_id,
       oldest: inputs.message_ts,
@@ -59,6 +42,25 @@ export default SlackFunction(
       inclusive: true,
     });
     console.log(JSON.stringify(the_message));
+
+    const the_link = await client.chat.getPermalink({
+      channel: inputs.channel_id,
+      message_ts: inputs.message_ts,
+    });
+    console.log(JSON.stringify(the_link));
+
+    const uuid = crypto.randomUUID();
+    const response = await client.apps.datastore.put({
+      datastore: "questions",
+      item: {
+        message_id: uuid,
+        message_ts: inputs.message_ts,
+        channel_id: inputs.channel_id,
+        text: the_message.messages[0].text,
+        user_id: the_message.messages[0].user,
+        message_url: the_link.permalink,
+      },
+    });
 
     if (!response.ok) {
       const error = `Failed to save a row in datastore: ${response.error}`;
