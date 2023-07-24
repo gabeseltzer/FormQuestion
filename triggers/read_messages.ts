@@ -19,7 +19,7 @@ const readMessage: Trigger<typeof StoreMessageWorkflow.definition> = {
   workflow: "#/workflows/store_message",
   event: {
     event_type: TriggerEventTypes.MessagePosted,
-    channel_ids: ["C05HRRJQ947", "C05J7FS9ATX"], //TODO: Make this work on channels we've added the app to
+    channel_ids: ["C05HRRJQ947", "C05J7FS9ATX"],
     filter: {
       version: 1,
       root: {
