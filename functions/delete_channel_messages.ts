@@ -23,15 +23,14 @@ export const DeleteChannelMessages = DefineFunction({
 export default SlackFunction(
   DeleteChannelMessages,
   async ({ inputs, client }) => {
+    console.log(
+      "This is the inputs: " +
+        JSON.stringify(inputs.messages_to_delete),
+    );
     if (inputs.messages_to_delete.items === undefined) {
       console.log("Nothing to delete");
       return { outputs: {} };
     }
-    console.log(
-      JSON.stringify(
-        "This is the delete items: " + inputs.messages_to_delete.items,
-      ),
-    );
     for (const message of inputs.messages_to_delete.items) {
       const response = await client.apps.datastore.delete({
         datastore: "questions",

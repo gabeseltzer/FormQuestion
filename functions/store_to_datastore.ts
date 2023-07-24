@@ -15,18 +15,6 @@ export const StoreToDatastore = DefineFunction({
         description: "The channel that the message was posted in",
         type: Schema.slack.types.channel_id,
       },
-      // text: {
-      //   description: "The text of the message",
-      //   type: Schema.slack.types.rich_text,
-      // },
-      // user_id: {
-      //   description: "The user who sent the message:",
-      //   type: Schema.slack.types.user_id,
-      // },
-      // debug_event: {
-      //   description: "We're unhappy",
-      //   type: Schema.types.object,
-      // },
     },
     required: ["message_ts", "channel_id"],
   },
@@ -51,7 +39,9 @@ export default SlackFunction(
 
     const uuid = crypto.randomUUID();
 
-    // Before putting into the datastore, check if the user_id of the message sender is the same as the bot's user_id. If it is, don't store.
+    // Before putting into the datastore, check if
+    //the user_id of the message sender is the same as the bot's user_id.
+    //If it is, don't store.
     const bot_info = await client.auth.test();
     console.log(JSON.stringify(bot_info));
     if (the_message.messages[0].user !== bot_info.user_id) {

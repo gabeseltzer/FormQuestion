@@ -11,6 +11,10 @@ export const GetStoredMessagesForChannel = DefineFunction({
         type: Schema.slack.types.channel_id,
         description: "The channel that the message was posted in",
       },
+      message_ts: {
+        type: Schema.slack.types.message_ts,
+        description: "(Optional) The single message to lookup",
+      },
     },
     required: ["channel_id"],
   },
@@ -28,13 +32,28 @@ export const GetStoredMessagesForChannel = DefineFunction({
 export default SlackFunction(
   GetStoredMessagesForChannel,
   async ({ inputs, client }) => {
-    // Note the `async`, required since we `await` any `client` call.
-    const resulting_messages = await client.apps.datastore.query({
-      datastore: "questions",
-      expression: "contains (#channel_id, :given_channel_id)",
-      expression_attributes: { "#channel_id": "channel_id" },
-      expression_values: { ":given_channel_id": inputs.channel_id },
-    });
+    let the_query;
+    if (inputs.message_ts !== undefined) {
+      the_query = {
+        datastore: "questions",
+        expression: " #message_ts = :given_message_ts",
+        expression_attributes: { "#message_ts": "message_ts" },
+        expression_values: { ":given_message_ts": inputs.message_ts },
+      };
+    } else {
+      the_query = {
+        datastore: "questions",
+        expression: "contains (#channel_id, :given_channel_id)",
+        expression_attributes: { "#channel_id": "channel_id" },
+        expression_values: { ":given_channel_id": inputs.channel_id },
+      };
+    }
+    const resulting_messages = await client.apps.datastore.query(the_query);
+    if (!resulting_messages.ok) {
+      console.log(
+        `Failed to get stored messages in datastore: ${resulting_messages.error}`,
+      );
+    }
     console.log("GOT DA MESSEGES: " + JSON.stringify(resulting_messages));
     return { outputs: { resulting_messages } };
   },

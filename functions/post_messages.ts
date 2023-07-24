@@ -30,20 +30,37 @@ export default SlackFunction(
   async ({ inputs, client }) => {
     const { resulting_messages, channel_id } = inputs;
     console.log("IMMA FIRIN MY LASER" + JSON.stringify(resulting_messages));
-    await client.chat.postMessage({
-      channel: channel_id,
-      blocks: [
-        {
+    const blocks = [];
+
+    if (
+      resulting_messages == undefined || resulting_messages.items.length == 0
+    ) {
+      blocks.push({
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": "something nice",
+        },
+      });
+    } else {
+      for (const message of resulting_messages.items) {
+        blocks.push({
           "type": "section",
           "text": {
             "type": "mrkdwn",
-            // "text": JSON.stringify(resulting_messages),
-            "text": "it me it work wow????don't store this",
+            "text": `[${message.text}](${message.message_url})`,
           },
-        },
-      ],
-    });
+        });
+      }
+    }
 
+    const result = await client.chat.postMessage({
+      channel: channel_id,
+      blocks: blocks,
+    });
+    if (!result.ok) {
+      console.log(`postMessage Failed: ${result.error}`);
+    }
     // Return all inputs as outputs for consumption in subsequent functions
     return { outputs: {} };
   },

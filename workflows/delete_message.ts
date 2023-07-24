@@ -25,35 +25,23 @@ const DeleteMessageWorkflow = DefineWorkflow({
   },
 });
 
-if (DeleteMessageWorkflow.inputs.delete_all) {
-  const get_messages_step = DeleteMessageWorkflow.addStep(
-    GetStoredMessagesForChannel,
-    {
-      channel_id: DeleteMessageWorkflow.inputs.channel_id,
-    },
-  );
-  DeleteMessageWorkflow.addStep(
-    DeleteChannelMessages,
-    {
-      channel_id: DeleteMessageWorkflow.inputs.channel_id,
-      messages_to_delete: get_messages_step.outputs.resulting_messages,
-    },
-  );
-} else {
-  const message_to_delete = {
-    items: [{
-      channel_id: DeleteMessageWorkflow.inputs.channel_id,
-      message_ts: DeleteMessageWorkflow.inputs.message_ts,
-    }],
-  };
-
-  DeleteMessageWorkflow.addStep(
-    DeleteChannelMessages,
-    {
-      channel_id: DeleteMessageWorkflow.inputs.channel_id,
-      messages_to_delete: message_to_delete,
-    },
-  );
-}
+const get_messages_step = DeleteMessageWorkflow.addStep(
+  GetStoredMessagesForChannel,
+  {
+    channel_id: DeleteMessageWorkflow.inputs.channel_id,
+    message_ts: DeleteMessageWorkflow.inputs.delete_all
+      ? DeleteMessageWorkflow.inputs.message_ts
+      : undefined,
+  },
+);
+console.log("Get Messages Step: " + JSON.stringify(get_messages_step));
+DeleteMessageWorkflow.addStep(
+  DeleteChannelMessages,
+  {
+    channel_id: DeleteMessageWorkflow.inputs.channel_id,
+    messages_to_delete: get_messages_step.outputs.resulting_messages,
+  },
+);
+// }
 
 export default DeleteMessageWorkflow;
