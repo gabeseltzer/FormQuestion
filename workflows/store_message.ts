@@ -14,43 +14,23 @@ const StoreMessageWorkflow = DefineWorkflow({
   input_parameters: {
     properties: {
       message_ts: {
-        description: "The message to store",
+        description: "The timestamp for the message to store",
         type: Schema.slack.types.message_ts,
       },
       channel_id: {
         description: "The id of the channel the message came from",
         type: Schema.slack.types.channel_id,
       },
-      // text: {
-      //   description: "The text of the message",
-      //   type: Schema.slack.types.rich_text,
-      // },
-      // user_id: {
-      //   description: "The user who posted the message",
-      //   type: Schema.slack.types.user_id,
-      // },
-      // debug_event: {
-      //   description: "the event we're unhappy",
-      //   type: Schema.types.object,
-      // },
     },
     required: ["message_ts", "channel_id"],
   },
 });
 
-/**
- * For collecting input from users, we recommend the
- * built-in OpenForm function as a first step.
- * https://api.slack.com/automation/functions#open-a-form
- */
 StoreMessageWorkflow.addStep(
   StoreToDatastore,
   {
     message_ts: StoreMessageWorkflow.inputs.message_ts,
     channel_id: StoreMessageWorkflow.inputs.channel_id,
-    // text: StoreMessageWorkflow.inputs.text,
-    // user_id: StoreMessageWorkflow.inputs.user_id,
-    // debug_event: StoreMessageWorkflow.inputs.debug_event,
   },
   // Schema.slack.functions.SendDm,
   // {
@@ -59,24 +39,5 @@ StoreMessageWorkflow.addStep(
   //     "Don't give up. Never surrender. Except the cookies. Surrender the cookies.",
   // },
 );
-
-/**
- * Custom functions are reusable building blocks
- * of automation deployed to Slack infrastructure. They
- * accept inputs, perform calculations, and provide
- * outputs, just like typical programmatic functions.
- * https://api.slack.com/automation/functions/custom
- */
-
-/*StoreMessageWorkflow.addStep(
-  PostIssueMessage,
-  {
-    channel: StoreMessageWorkflow.inputs.channel,
-    submitting_user: inputForm.outputs.interactivity.interactor.id,
-    severity: inputForm.outputs.fields.severity,
-    description: inputForm.outputs.fields.description,
-    link: inputForm.outputs.fields.link,
-  },
-);*/
 
 export default StoreMessageWorkflow;

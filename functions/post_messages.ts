@@ -37,7 +37,8 @@ export default SlackFunction(
           "type": "section",
           "text": {
             "type": "mrkdwn",
-            "text": JSON.stringify(resulting_messages),
+            // "text": JSON.stringify(resulting_messages),
+            "text": "it me it work wow????don't store this",
           },
         },
       ],

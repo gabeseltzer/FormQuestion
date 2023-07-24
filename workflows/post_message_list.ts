@@ -23,8 +23,8 @@ const PostMessageList = DefineWorkflow({
     required: ["channel_id", "interactivity"],
   },
 });
-
-const lookup_results = PostMessageList.addStep(
+console.log("STEP ONE IS DONE");
+const get_messages_step = PostMessageList.addStep(
   GetStoredMessagesForChannel,
   {
     channel_id: PostMessageList.inputs.channel_id,
@@ -35,7 +35,7 @@ PostMessageList.addStep(
   PostMessages,
   {
     channel_id: PostMessageList.inputs.channel_id,
-    resulting_messages: lookup_results.outputs.resulting_messages,
+    resulting_messages: get_messages_step.outputs.resulting_messages,
   },
 );
 

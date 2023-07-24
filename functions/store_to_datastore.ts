@@ -50,24 +50,33 @@ export default SlackFunction(
     console.log(JSON.stringify(the_link));
 
     const uuid = crypto.randomUUID();
-    const response = await client.apps.datastore.put({
-      datastore: "questions",
-      item: {
-        message_id: uuid,
-        message_ts: inputs.message_ts,
-        channel_id: inputs.channel_id,
-        text: the_message.messages[0].text,
-        user_id: the_message.messages[0].user,
-        message_url: the_link.permalink,
-      },
-    });
 
-    if (!response.ok) {
-      const error = `Failed to save a row in datastore: ${response.error}`;
-      return { error };
+    // Before putting into the datastore, check if the user_id of the message sender is the same as the bot's user_id. If it is, don't store.
+    const bot_info = await client.auth.test();
+    console.log(JSON.stringify(bot_info));
+    if (the_message.messages[0].user !== bot_info.user_id) {
+      const response = await client.apps.datastore.put({
+        datastore: "questions",
+        item: {
+          message_id: uuid,
+          message_ts: inputs.message_ts,
+          channel_id: inputs.channel_id,
+          text: the_message.messages[0].text,
+          user_id: the_message.messages[0].user,
+          message_url: the_link.permalink,
+        },
+      });
+
+      if (!response.ok) {
+        const error = `Failed to save a row in datastore: ${response.error}`;
+        return { error };
+      } else {
+        console.log(`A new row saved: ${response.item}`);
+        return { outputs: {} };
+      }
     } else {
-      console.log(`A new row saved: ${response.item}`);
-      return { outputs: {} };
+      console.log("we r not storing this");
     }
+    return { outputs: {} };
   },
 );
