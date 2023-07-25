@@ -15,6 +15,11 @@ export const StoreToDatastore = DefineFunction({
         description: "The channel that the message was posted in",
         type: Schema.slack.types.channel_id,
       },
+      passed_checks: {
+        description:
+          "Whether or not we should save this. We don't know what we're doing.",
+        type: Schema.types.boolean,
+      },
     },
     required: ["message_ts", "channel_id"],
   },
@@ -23,6 +28,10 @@ export const StoreToDatastore = DefineFunction({
 export default SlackFunction(
   StoreToDatastore,
   async ({ inputs, client }) => {
+    if (!inputs.passed_checks) {
+      return { outputs: {} };
+    }
+
     const the_message = await client.conversations.history({
       channel: inputs.channel_id,
       oldest: inputs.message_ts,

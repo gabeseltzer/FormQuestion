@@ -28,15 +28,15 @@ const passed_checks = CheckAndStoreMessageWorkflow.addStep(
     channel_id: CheckAndStoreMessageWorkflow.inputs.channel_id,
   },
 );
-
-if (passed_checks.outputs.passed_checks === "true") {
-  CheckAndStoreMessageWorkflow.addStep(
-    StoreToDatastore,
-    {
-      message_ts: CheckAndStoreMessageWorkflow.inputs.message_ts,
-      channel_id: CheckAndStoreMessageWorkflow.inputs.channel_id,
-    },
-  );
-}
+// if (passed_checks.outputs.passed_checks === "true") {
+CheckAndStoreMessageWorkflow.addStep(
+  StoreToDatastore,
+  {
+    message_ts: CheckAndStoreMessageWorkflow.inputs.message_ts,
+    channel_id: CheckAndStoreMessageWorkflow.inputs.channel_id,
+    passed_checks: passed_checks.outputs.passed_checks,
+  },
+);
+// }
 
 export default CheckAndStoreMessageWorkflow;
