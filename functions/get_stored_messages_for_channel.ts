@@ -54,7 +54,14 @@ export default SlackFunction(
         `Failed to get stored messages in datastore: ${resulting_messages.error}`,
       );
     }
-    console.log("GOT DA MESSEGES: " + JSON.stringify(resulting_messages));
+    console.log("GOT DA MESSAGES: " + JSON.stringify(resulting_messages));
+
+    // Sort the messages before returning them
+    if (resulting_messages.items) {
+      resulting_messages.items.sort((a, b) =>
+        a.message_ts < b.message_ts ? -1 : a.message_ts > b.message_ts ? 1 : 0
+      );
+    }
     return { outputs: { resulting_messages } };
   },
 );

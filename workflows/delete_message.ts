@@ -34,7 +34,6 @@ const get_messages_step = DeleteMessageWorkflow.addStep(
       : undefined,
   },
 );
-console.log("Get Messages Step: " + JSON.stringify(get_messages_step));
 DeleteMessageWorkflow.addStep(
   DeleteChannelMessages,
   {
