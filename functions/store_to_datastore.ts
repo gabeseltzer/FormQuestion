@@ -28,7 +28,7 @@ export const StoreToDatastore = DefineFunction({
 export default SlackFunction(
   StoreToDatastore,
   async ({ inputs, client }) => {
-    if (!inputs.passed_checks) {
+    if (inputs.passed_checks !== undefined && !inputs.passed_checks) {
       return { outputs: {} };
     }
 
