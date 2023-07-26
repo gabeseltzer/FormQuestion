@@ -39,10 +39,17 @@ export default SlackFunction(
         "type": "section",
         "text": {
           "type": "mrkdwn",
-          "text": "something nice",
+          "text": "I DON'T NEED SLEEP, I NEED ANSWERS :robot_face:",
         },
       });
     } else {
+      blocks.push({
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": `Rise and shine! Here's some questions that still need help:`,
+        },
+      });
       for (const message of resulting_messages.items) {
         blocks.push({
           "type": "section",
