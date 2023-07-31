@@ -5,7 +5,7 @@ import PostMessageList from "../workflows/post_message_list.ts";
 // Returns the start_time for schedule
 const getStartTime = () => {
   // Sets reminder time to 13:00 UTC which is 9 AM EST
-  const reminder_hour = 13;
+  const reminder_hour = 3; // TODO: change back to 13
   const ms_in_day = 24 * 60 * 60 * 1000;
 
   // Make a Date and set the hour to reminder_hour
@@ -16,8 +16,20 @@ const getStartTime = () => {
   const tomorrow_at_reminder_hour = new Date(new Date().getTime() + ms_in_day);
   tomorrow_at_reminder_hour.setUTCHours(reminder_hour, 0, 0);
 
-  // If the time is before 13:00 UTC, start reminding today
-  return new Date().getUTCHours() < 13
+  if (new Date().getUTCHours() < reminder_hour) {
+    console.log(
+      "It is currently before the reminder_hour: " +
+        today_at_reminder_hour.toISOString(),
+    );
+  } else {
+    console.log(
+      "It is currently after the reminder_hour: " +
+        tomorrow_at_reminder_hour.toISOString(),
+    );
+  }
+
+  // If the time is before the reminder_hour (13:00 UTC), start reminding today
+  return new Date().getUTCHours() < reminder_hour
     ? today_at_reminder_hour.toISOString()
     // Otherwise, start reminding tomorrow
     : tomorrow_at_reminder_hour.toISOString();
