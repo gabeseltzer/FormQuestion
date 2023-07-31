@@ -50,20 +50,35 @@ export default SlackFunction(
           "text": `Rise and shine! Here's some questions that still need help:`,
         },
       });
-      for (const message of resulting_messages.items) {
+      if (resulting_messages.items.length > 5) {
         blocks.push({
           "type": "section",
           "text": {
             "type": "mrkdwn",
-            "text": `[${message.text}](${message.message_url})`,
+            "text":
+              `(Slack only shows 5 message previews at a time. Plz answer da questions :press_button_rapid:)`,
           },
         });
       }
+      resulting_messages.items.forEach(
+        // deno-lint-ignore no-explicit-any
+        (message: { message_url: any; text: any }, count: any) => {
+          blocks.push({
+            "type": "section",
+            "text": {
+              "type": "mrkdwn",
+              "text": `<${message.message_url}|${count + 1}.>`,
+            },
+          });
+        },
+      );
     }
 
     const result = await client.chat.postMessage({
       channel: channel_id,
       blocks: blocks,
+      unfurl_links: true,
+      unfurl_media: true,
     });
     if (!result.ok) {
       console.log(`postMessage Failed: ${result.error}`);
