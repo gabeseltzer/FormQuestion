@@ -20,7 +20,7 @@ const PostMessageList = DefineWorkflow({
         type: Schema.slack.types.channel_id,
       },
     },
-    required: ["channel_id", "interactivity"],
+    required: ["channel_id"],
   },
 });
 console.log("STEP ONE IS DONE");

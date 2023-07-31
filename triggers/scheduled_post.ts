@@ -1,11 +1,11 @@
 import { Trigger } from "deno-slack-api/types.ts";
-import { TriggerContextData, TriggerTypes } from "deno-slack-api/mod.ts";
+import { TriggerTypes } from "deno-slack-api/mod.ts";
 import PostMessageList from "../workflows/post_message_list.ts";
 
 // Returns the start_time for schedule
 const getStartTime = () => {
   // Sets reminder time to 13:00 UTC which is 9 AM EST
-  const reminder_hour = 3; // TODO: change back to 13
+  const reminder_hour = 4; // TODO: change back to 13
   const ms_in_day = 24 * 60 * 60 * 1000;
 
   // Make a Date and set the hour to reminder_hour
@@ -41,20 +41,8 @@ const trigger: Trigger<typeof PostMessageList.definition> = {
   workflow: "#/workflows/post_message_list",
   inputs: {
     channel_id: { value: "C05HRRJQ947" },
-    interactivity: {
-      value: TriggerContextData.Shortcut.interactivity,
-    },
   },
   schedule: {
-    // Schedule the post to happen once every day at 9 AM EST
-    //start_time: new Date(new Date().getTime() + 60000).toISOString(),
-    //start_time: "2023-07-24T09:00:00Z",
-    //start_time: new Date(new Date().getTime().toISOString(),
-    /*start_time: new Date().getUTCFullYear() + "-"
-    + new Date().getUTCMonth() + "-"
-    + new Date().getUTCHours() < 13 ? new Date().getUTCDay() : new Date().getUTCDay() + 1
-    + "T13:00:00Z",*/
-
     start_time: getStartTime(),
 
     frequency: { type: "hourly", repeats_every: 1 }, // TODO: make sure this is daily and not hourly
