@@ -11,13 +11,13 @@ import CheckAndStoreMessageWorkflow from "../workflows/check_and_store_message.t
 
 export const CreateDynamicTriggers = DefineFunction({
   callback_id: "create_dynamic_triggers",
-  title: "Delete Channel Messages",
-  description: "Delete all given messages from the given channel",
-  source_file: "functions/delete_channel_messages.ts",
+  title: "Create Dynamic Triggers",
+  description: "Create triggers to listen to messages in a given channel",
+  source_file: "functions/create_dynamic_triggers.ts",
   input_parameters: {
     properties: {
       channel_id: {
-        description: "The channel that the message was posted in",
+        description: "The channel to start listening to",
         type: Schema.slack.types.channel_id,
       },
     },
