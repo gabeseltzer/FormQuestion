@@ -1,13 +1,16 @@
 import { Trigger } from "deno-slack-api/types.ts";
-import { PostMessageList } from "../workflows/post_message_list.ts";
-import { TriggerTypes } from "deno-slack-api/mod.ts";
+import { TriggerContextData, TriggerTypes } from "deno-slack-api/mod.ts";
+import PostMessageList from "../workflows/post_message_list.ts";
 
 const trigger: Trigger<typeof PostMessageList.definition> = {
   type: TriggerTypes.Scheduled,
   name: "Trigger a scheduled post_message_list",
-  workflow: `#/workflows/${workflowDef.definition.callback_id}`,
+  workflow: "#/workflows/post_message_list",
   inputs: {
-    channel_id: ["C05HRRJQ947"],
+    channel_id: { value: "C05HRRJQ947" },
+    interactivity: {
+      value: TriggerContextData.Shortcut.interactivity,
+    },
   },
   schedule: {
     // Schedule the post to happen once every day at 9 AM EST
