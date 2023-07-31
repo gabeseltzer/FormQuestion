@@ -1,13 +1,4 @@
 import { DefineFunction, Schema, SlackFunction } from "deno-slack-sdk/mod.ts"; // Note the SlackFunction import here
-import {
-  TriggerContextData,
-  TriggerEventTypes,
-  TriggerTypes,
-} from "deno-slack-api/mod.ts";
-import StoreMessageWorkflow from "../workflows/store_message.ts";
-import DeleteMessageWorkflow from "../workflows/delete_message.ts";
-import PostMessageList from "../workflows/post_message_list.ts";
-import CheckAndStoreMessageWorkflow from "../workflows/check_and_store_message.ts";
 
 export const CreateDynamicTriggers = DefineFunction({
   callback_id: "delete_dynamic_triggers",
@@ -28,15 +19,34 @@ export const CreateDynamicTriggers = DefineFunction({
 export default SlackFunction(
   CreateDynamicTriggers,
   async ({ inputs, client }) => {
-    const response = await client.workflows.triggers.list();
-    if (!response.ok) {
+    const list_response = await client.workflows.triggers.list();
+    if (!list_response.ok) {
       console.log(
         "Couldn't get list of triggers, something went wrong: " +
-          JSON.stringify(response.error),
+          JSON.stringify(list_response.error),
       );
       return { outputs: {} };
     }
-    console.log("List of triggers: " + JSON.stringify(response));
+    console.log("List of triggers: " + JSON.stringify(list_response));
+
+    for (const trigger of list_response.triggers) {
+      if (
+        trigger.channel_id === inputs.channel_id &&
+        !trigger.name.includes("Dynamic")
+      ) {
+        const delete_response = await client.workflows.triggers.delete({
+          trigger_id: trigger.id,
+        });
+        if (!delete_response.ok) {
+          console.log(
+            `Couldn't delete trigger ${trigger.name}, ID: ${trigger.id} -- something went wrong: ` +
+              JSON.stringify(delete_response.error),
+          );
+        } else {
+          console.log(`Successfully deleted trigger: ${trigger.name}, ID: ${trigger.id}`);
+        }
+      }
+    }
     return { outputs: {} };
   },
 );
