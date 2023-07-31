@@ -47,7 +47,7 @@ export default SlackFunction(
       typeof StoreMessageWorkflow.definition
     >({
       type: TriggerTypes.Event,
-      name: `${channel_name} Read Messages`,
+      name: `${channel_name} Read Messages Dynamic`,
       description: "Read messages if they're questions",
       workflow: "#/workflows/store_message",
       event: {
@@ -95,7 +95,7 @@ export default SlackFunction(
       typeof DeleteMessageWorkflow.definition
     >({
       type: TriggerTypes.Event,
-      name: `${channel_name} React to Delete Message`,
+      name: `${channel_name} React to Delete Message Dynamic`,
       description:
         "When a check emoji is reacted on a message, delete from list",
       workflow: "#/workflows/delete_message",
@@ -133,7 +133,7 @@ export default SlackFunction(
       typeof CheckAndStoreMessageWorkflow.definition
     >({
       type: TriggerTypes.Event,
-      name: `${channel_name} Remove React to Store Message`,
+      name: `${channel_name} Remove React to Store Message Dynamic`,
       description:
         "When a check emoji is removed from a message, store the message",
       workflow: "#/workflows/check_and_store_message",
@@ -171,7 +171,7 @@ export default SlackFunction(
       typeof PostMessageList.definition
     >({
       type: TriggerTypes.Scheduled,
-      name: "Trigger a scheduled post_message_list",
+      name: `${channel_name} Trigger a scheduled post_message_list Dynamic`,
       workflow: "#/workflows/post_message_list",
       inputs: {
         channel_id: { value: [inputs.channel_id] },
@@ -202,7 +202,7 @@ export default SlackFunction(
       typeof DeleteMessageWorkflow.definition
     >({
       type: TriggerTypes.Shortcut,
-      name: "Delete Channel Messages",
+      name: `${channel_name} Delete Channel Messages Dynamic`,
       description: "Delete all stored messages in the current channel",
       workflow: "#/workflows/delete_message",
       inputs: {
@@ -230,7 +230,7 @@ export default SlackFunction(
       typeof PostMessageList.definition
     >({
       type: TriggerTypes.Shortcut,
-      name: "Post message list",
+      name: `${channel_name} Post message list Dynamic`,
       description: "Post a list of all stored messages",
       workflow: "#/workflows/post_message_list",
       inputs: {
