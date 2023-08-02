@@ -8,8 +8,7 @@ import DeleteMessageWorkflow from "../workflows/delete_message.ts";
 import { PopulatedArray } from "deno-slack-api/type-helpers.ts";
 
 export function generateReactionAddedTrigger(
-  _type: string,
-  channels: PopulatedArray<string>,
+  args: { channel_ids: PopulatedArray<string>; theEmojiStatement: any },
 ): Trigger<typeof DeleteMessageWorkflow.definition> {
   const newTrigger: Trigger<typeof DeleteMessageWorkflow.definition> = {
     type: TriggerTypes.Event,
@@ -18,13 +17,10 @@ export function generateReactionAddedTrigger(
     workflow: "#/workflows/delete_message",
     event: {
       event_type: TriggerEventTypes.ReactionAdded,
-      // TODO: Listing all the channels to enable here is required
-      channel_ids: channels,
+      channel_ids: args.channel_ids,
       filter: {
         version: 1,
-        root: {
-          statement: "{{data.reaction}} == 'github-check'",
-        },
+        root: args.theEmojiStatement,
       },
     },
     inputs: {
@@ -37,6 +33,9 @@ export function generateReactionAddedTrigger(
 }
 
 const trigger: Trigger<typeof DeleteMessageWorkflow.definition> =
-  generateReactionAddedTrigger("reactionAdded", ["C05HRRJQ947", "C05J7FS9ATX"]);
+  generateReactionAddedTrigger({
+    channel_ids: ["C05HRRJQ947", "C05J7FS9ATX"],
+    theEmojiStatement: { statement: "{{data.reaction}} == 'github-check'" },
+  });
 
 export default trigger;

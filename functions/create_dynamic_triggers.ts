@@ -9,6 +9,7 @@ import DeleteMessageWorkflow from "../workflows/delete_message.ts";
 import PostMessageList from "../workflows/post_message_list.ts";
 import CheckAndStoreMessageWorkflow from "../workflows/check_and_store_message.ts";
 import { generateReactionAddedTrigger } from "../triggers/reaction_added.ts";
+import { generateTriggers } from "./generate_triggers.ts";
 
 export const CreateDynamicTriggers = DefineFunction({
   callback_id: "create_dynamic_triggers",
@@ -65,13 +66,14 @@ export default SlackFunction(
     for (const trigger of list_response.triggers) {
       if (trigger.name === "React to Delete Message") {
         const new_list_of_channels = trigger.channel_id.push(inputs.channel_id);
-        const new_trigger = generateReactionAddedTrigger(
-          "React to Delete Message",
-          new_list_of_channels,
+        const new_trigger = generateTriggers(
+          trigger,
+          { channel_ids: new_list_of_channels },
         );
-        const trigger_response = await client.workflows.triggers.create<
+        new_trigger!.trigger_id = trigger.id;
+        const trigger_response = await client.workflows.triggers.update<
           typeof DeleteMessageWorkflow.definition
-        >(new_trigger);
+        >(new_trigger!);
         if (!trigger_response.ok) {
           console.log(
             "Trigger not created, something went wrong: " +
