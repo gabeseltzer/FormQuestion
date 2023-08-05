@@ -8,19 +8,28 @@ import PostMessageList from "../workflows/post_message_list.ts";
  * such as a user pressing a button or when a specific event occurs.
  * https://api.slack.com/automation/triggers
  */
-const listMessagesShortcut: Trigger<typeof PostMessageList.definition> = {
-  type: TriggerTypes.Shortcut,
-  name: "Post message list",
-  description: "Post a list of all stored messages",
-  workflow: "#/workflows/post_message_list",
-  inputs: {
-    interactivity: {
-      value: TriggerContextData.Shortcut.interactivity,
-    },
-    channel_id: {
-      value: TriggerContextData.Shortcut.channel_id,
-    },
-  },
-};
 
-export default listMessagesShortcut;
+export function generateListMessagesTrigger(): Trigger<
+  typeof PostMessageList.definition
+> {
+  const newTrigger: Trigger<typeof PostMessageList.definition> = {
+    type: TriggerTypes.Shortcut,
+    name: "Post message list",
+    description: "Post a list of all stored messages",
+    workflow: "#/workflows/post_message_list",
+    inputs: {
+      interactivity: {
+        value: TriggerContextData.Shortcut.interactivity,
+      },
+      channel_id: {
+        value: TriggerContextData.Shortcut.channel_id,
+      },
+    },
+  };
+  return newTrigger;
+}
+
+const trigger: Trigger<typeof PostMessageList.definition> =
+  generateListMessagesTrigger();
+
+export default trigger;
