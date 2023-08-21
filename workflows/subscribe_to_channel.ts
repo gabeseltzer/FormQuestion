@@ -1,5 +1,6 @@
 import { DefineWorkflow, Schema } from "deno-slack-sdk/mod.ts";
 import { CreateDynamicTriggers } from "../functions/create_dynamic_triggers.ts";
+import { ConfigurationModal } from "../functions/configuration_modal.ts";
 
 /**
  * A workflow is a set of steps that are executed in order.
@@ -22,10 +23,19 @@ const SubscribeToChannel = DefineWorkflow({
     required: ["channel_id", "interactivity"],
   },
 });
+const subscribeStep = SubscribeToChannel.addStep(
+  ConfigurationModal,
+  {
+    channel_id: SubscribeToChannel.inputs.channel_id,
+    interactivity: SubscribeToChannel.inputs.interactivity,
+  },
+);
+
 SubscribeToChannel.addStep(
   CreateDynamicTriggers,
   {
-    channel_id: SubscribeToChannel.inputs.channel_id,
+    channel_id: subscribeStep.outputs.channel_id,
+    args: subscribeStep.outputs.args,
   },
 );
 
