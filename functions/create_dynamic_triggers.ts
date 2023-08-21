@@ -10,6 +10,11 @@ import PostMessageList from "../workflows/post_message_list.ts";
 import CheckAndStoreMessageWorkflow from "../workflows/check_and_store_message.ts";
 import { generateReactionAddedTrigger } from "../triggers/reaction_added.ts";
 import { generateTriggers } from "./generate_triggers.ts";
+import { generateReactionRemovedTrigger } from "../triggers/reaction_removed.ts";
+import { generateReadMessagesTrigger } from "../triggers/read_messages.ts";
+import { generateListMessagesTrigger } from "../triggers/list_messages_shortcut.ts";
+import { BaseMethodArgs, Trigger } from "deno-slack-api/types.ts";
+import { WorkflowSchema } from "deno-slack-api/typed-method-types/workflows/triggers/mod.ts";
 
 export const CreateDynamicTriggers = DefineFunction({
   callback_id: "create_dynamic_triggers",
@@ -22,6 +27,11 @@ export const CreateDynamicTriggers = DefineFunction({
         description: "The channel to start listening to",
         type: Schema.slack.types.channel_id,
       },
+      args: {
+        description:
+          "The arguments for the newly created object (if not default values)",
+        type: Schema.types.object,
+      },
     },
     required: ["channel_id"],
   },
@@ -32,6 +42,7 @@ export default SlackFunction(
   async ({ inputs, client }) => {
     const channel_info = await client.conversations.info({
       channel: inputs.channel_id,
+      args: inputs.args,
     });
     if (!channel_info.ok || channel_info.channel === undefined) {
       console.log(
@@ -53,15 +64,48 @@ export default SlackFunction(
     console.log("List of triggers: " + JSON.stringify(list_response));
 
     const triggers_to_update = [
-      "React to Delete Message",
-      "Remove React to Store Message",
-      "Read Incoming Messages",
-      "Trigger a scheduled post_message_list",
+      {
+        name: "React to Delete Message",
+        func_to_do: generateReactionAddedTrigger,
+      },
+      {
+        name: "Remove React to Store Message",
+        func_to_do: generateReactionRemovedTrigger,
+      },
+      {
+        name: "Read Incoming Messages",
+        func_to_do: generateReadMessagesTrigger,
+      },
+      // This one we need to make new triggers
+      // for the scheduled post message list because each one could be different, and so each channel needs its own parameters
+      // {
+      //   name: "Trigger a scheduled post_message_list",
+      //   func_to_do: generateListMessagesTrigger,
+      // },
     ];
 
-    // TODO: This is half good. It would be good to make a list of names of triggers and correlate to the trigger types (the workflow types) so that actually creating the trigger with the client can be pretty.
-    // TODO: Right now the function that makes the trigger only makes one type of trigger. We should make it make all the types of triggers, and take in the type of trigger you wanna make.
-    //
+    for (const trigger of list_response.triggers) {
+      if (trigger.events.channel_ids.includes(inputs.channel_id)) { // Jesse hates this, we are mismatching between multiple channel ids and one channel id wtf
+        const trigger_type = triggers_to_update.find((e) =>
+          trigger.name.includes(e.name)
+        );
+        // There's already a trigger that we'll need to update:
+        if (trigger_type !== undefined) {
+          const updatedTrigger = trigger_type.func_to_do(inputs.args);
+          // deno-lint-ignore no-explicit-any
+          type GetMyClassT<C extends Trigger<any>> = C extends Trigger<infer T>
+            ? T
+            : unknown;
+          type workflowType = GetMyClassT<typeof updatedTrigger>;
+
+          const moreUpdatedTrigger = {
+            ...updatedTrigger,
+            trigger_id: trigger.id,
+          };
+          client.workflows.triggers.update<workflowType>(moreUpdatedTrigger);
+        }
+      }
+    }
 
     for (const trigger of list_response.triggers) {
       if (trigger.name === "React to Delete Message") {
