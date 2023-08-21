@@ -3,6 +3,7 @@ import { generateReactionAddedTrigger } from "../triggers/reaction_added.ts";
 import { generateReactionRemovedTrigger } from "../triggers/reaction_removed.ts";
 import { generateReadMessagesTrigger } from "../triggers/read_messages.ts";
 import { Trigger } from "deno-slack-api/types.ts";
+import { generateScheduledPostTrigger } from "../triggers/scheduled_post.ts";
 
 export const CreateDynamicTriggers = DefineFunction({
   callback_id: "create_dynamic_triggers",
@@ -64,12 +65,10 @@ export default SlackFunction(
         name: "Read Incoming Messages",
         func_to_do: generateReadMessagesTrigger,
       },
-      // This one we need to make new triggers
-      // for the scheduled post message list because each one could be different, and so each channel needs its own parameters
-      // {
-      //   name: "Trigger a scheduled post_message_list",
-      //   func_to_do: generateListMessagesTrigger,
-      // },
+      {
+        name: "Trigger a scheduled post_message_list",
+        func_to_do: generateScheduledPostTrigger,
+      },
     ];
 
     for (const trigger_type of triggers_to_update) {
@@ -101,6 +100,7 @@ export default SlackFunction(
           updated_an_exising_trigger = true;
         }
       }
+      // If there isn't an existing trigger that we've updated, we create a fresh one
       if (!updated_an_exising_trigger) {
         const response = await client.workflows.triggers.create<workflowType>(
           updatedTrigger,

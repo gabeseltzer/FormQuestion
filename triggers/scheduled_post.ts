@@ -35,18 +35,28 @@ const getStartTime = () => {
     : tomorrow_at_reminder_hour.toISOString();
 };
 
-const trigger: Trigger<typeof PostMessageList.definition> = {
-  type: TriggerTypes.Scheduled,
-  name: "Trigger a scheduled post_message_list",
-  workflow: "#/workflows/post_message_list",
-  inputs: {
-    channel_id: { value: "C05HRRJQ947" },
-  },
-  schedule: {
-    start_time: getStartTime(),
+export function generateScheduledPostTrigger(
+  args: { channel_id: any; schedule: any },
+): Trigger<typeof PostMessageList.definition> {
+  const newTrigger: Trigger<typeof PostMessageList.definition> = {
+    type: TriggerTypes.Scheduled,
+    name: "Trigger a scheduled post_message_list",
+    workflow: "#/workflows/post_message_list",
+    inputs: {
+      channel_id: { value: args.channel_id },
+    },
+    schedule: args.schedule,
+  };
+  return newTrigger;
+}
 
-    frequency: { type: "hourly", repeats_every: 1 }, // TODO: make sure this is daily and not hourly
-  },
-};
+const trigger: Trigger<typeof PostMessageList.definition> =
+  generateScheduledPostTrigger({
+    channel_id: "C05HRRJQ947",
+    schedule: {
+      start_time: getStartTime(),
+      frequency: { type: "hourly", repeats_every: 1 },
+    },
+  });
 
 export default trigger;
